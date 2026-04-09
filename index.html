@@ -3,48 +3,663 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>enable users to</title>
-    <meta name="description" content="enable users to optimize and streamline their daily routines and schedules" />
+    <title>enable users to - Schedule Conflict Prevention</title>
+    <meta name="description" content="Prevent scheduling conflicts and optimize your daily routine as a self-employed professional" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="./styles.css" />
     <style>
-      /* Page-specific styles — the integration agent will extract these into styles.css later */
-      nav { display: flex; align-items: center; justify-content: space-between; padding: 16px 32px; background: #fffaf4; }
-      .brand { font-weight: 700; font-size: 1.1rem; }
-      .nav-links { display: flex; gap: 16px; }
-      .nav-link { text-decoration: none; color: #1c1917; font-size: 0.9rem; }
-      .nav-link.active { color: #bc5e2c; font-weight: 600; }
-      .menu-toggle { display: none; }
-      main { padding: 32px; }
-      @media (max-width: 768px) { .menu-toggle { display: block; } .nav-links { display: none; } }
+      /* Design Tokens */
+      :root {
+        --bg: #f4efe7;
+        --surface: #fffaf4;
+        --accent: #bc5e2c;
+        --accent-hover: #a34d22;
+        --accent-light: rgba(188, 94, 44, 0.1);
+        --text: #1c1917;
+        --muted: #6b635f;
+        --border: rgba(188, 94, 44, 0.2);
+        --space-xs: 0.25rem;
+        --space-sm: 0.5rem;
+        --space-md: 1rem;
+        --space-lg: 1.5rem;
+        --space-xl: 2rem;
+        --space-2xl: 3rem;
+        --space-3xl: 4rem;
+        --space-4xl: 6rem;
+        --text-xs: 0.75rem;
+        --text-sm: 0.875rem;
+        --text-base: 1rem;
+        --text-lg: 1.125rem;
+        --text-xl: 1.25rem;
+        --text-2xl: 1.5rem;
+        --text-3xl: 1.875rem;
+        --text-hero: clamp(2.5rem, 8vw, 4rem);
+        --shadow-xs: 0 1px 2px rgba(0,0,0,0.05);
+        --shadow-sm: 0 1px 3px rgba(0,0,0,0.1);
+        --shadow-md: 0 4px 6px rgba(0,0,0,0.1);
+        --shadow-lg: 0 10px 15px rgba(0,0,0,0.1);
+        --shadow-xl: 0 20px 25px rgba(0,0,0,0.1);
+        --shadow-glow: 0 0 20px rgba(188, 94, 44, 0.3);
+        --radius-sm: 0.25rem;
+        --radius-md: 0.5rem;
+        --radius-lg: 0.75rem;
+        --radius-full: 9999px;
+        --ease-out: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        --ease-spring: cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        --duration-fast: 150ms;
+        --duration-normal: 300ms;
+        --duration-slow: 500ms;
+      }
+
+      /* Base Styles */
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: 'Inter', sans-serif;
+        background-color: var(--bg);
+        color: var(--text);
+        line-height: 1.6;
+        overflow-x: hidden;
+      }
+
+      /* Navigation */
+      .navbar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        z-index: 100;
+        padding: var(--space-md) var(--space-2xl);
+        background: color-mix(in srgb, var(--bg) 80%, transparent);
+        backdrop-filter: blur(12px) saturate(150%);
+        border-bottom: 1px solid var(--border);
+        transition: background var(--duration-normal);
+      }
+
+      .nav-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+
+      .brand {
+        font-weight: 700;
+        font-size: var(--text-lg);
+        color: var(--text);
+        text-decoration: none;
+      }
+
+      .nav-links {
+        display: flex;
+        gap: var(--space-lg);
+        align-items: center;
+      }
+
+      .nav-link {
+        text-decoration: none;
+        color: var(--text);
+        font-weight: 500;
+        font-size: var(--text-sm);
+        transition: color var(--duration-fast);
+        position: relative;
+      }
+
+      .nav-link::after {
+        content: '';
+        position: absolute;
+        bottom: -4px;
+        left: 0;
+        width: 0;
+        height: 2px;
+        background-color: var(--accent);
+        transition: width var(--duration-normal) var(--ease-out);
+      }
+
+      .nav-link:hover {
+        color: var(--accent);
+      }
+
+      .nav-link:hover::after,
+      .nav-link.active::after {
+        width: 100%;
+      }
+
+      .menu-toggle {
+        display: none;
+        background: none;
+        border: none;
+        font-size: var(--text-xl);
+        cursor: pointer;
+        color: var(--text);
+        padding: var(--space-xs);
+      }
+
+      /* Hero Section */
+      .hero {
+        min-height: 80vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        background: linear-gradient(135deg, var(--bg) 0%, var(--surface) 50%, color-mix(in srgb, var(--accent) 5%, var(--bg)) 100%);
+        position: relative;
+        overflow: hidden;
+        padding: var(--space-4xl) var(--space-md);
+      }
+
+      .hero::before {
+        content: '';
+        position: absolute;
+        width: 600px;
+        height: 600px;
+        background: radial-gradient(circle, color-mix(in srgb, var(--accent) 15%, transparent), transparent 70%);
+        top: -200px;
+        right: -100px;
+        pointer-events: none;
+      }
+
+      .hero-content {
+        max-width: 800px;
+        z-index: 1;
+      }
+
+      .hero h1 {
+        font-size: var(--text-hero);
+        font-weight: 800;
+        letter-spacing: -0.04em;
+        line-height: 1.05;
+        background: linear-gradient(135deg, var(--text), var(--accent));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        margin-bottom: var(--space-lg);
+      }
+
+      .hero p {
+        font-size: var(--text-xl);
+        color: var(--muted);
+        margin-bottom: var(--space-2xl);
+        max-width: 600px;
+        margin-left: auto;
+        margin-right: auto;
+      }
+
+      .btn-primary {
+        display: inline-block;
+        padding: var(--space-md) var(--space-xl);
+        border-radius: var(--radius-full);
+        background: linear-gradient(135deg, var(--accent), var(--accent-hover));
+        color: white;
+        font-weight: 600;
+        font-size: var(--text-base);
+        text-decoration: none;
+        border: none;
+        cursor: pointer;
+        box-shadow: 0 2px 8px color-mix(in srgb, var(--accent) 30%, transparent);
+        transition: all var(--duration-normal) var(--ease-spring);
+      }
+
+      .btn-primary:hover {
+        transform: translateY(-2px) scale(1.02);
+        box-shadow: 0 6px 20px color-mix(in srgb, var(--accent) 40%, transparent);
+      }
+
+      /* Section Styles */
+      section {
+        padding: var(--space-4xl) var(--space-2xl);
+        position: relative;
+      }
+
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 var(--space-lg);
+      }
+
+      .section-label {
+        font-size: var(--text-xs);
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.15em;
+        color: var(--accent);
+        margin-bottom: var(--space-sm);
+      }
+
+      .section-title {
+        font-size: var(--text-3xl);
+        font-weight: 800;
+        letter-spacing: -0.03em;
+        margin-bottom: var(--space-lg);
+        color: var(--text);
+      }
+
+      /* Conflict Detection Section */
+      .conflict-detection {
+        background: var(--surface);
+        border-top: 1px solid var(--border);
+      }
+
+      .conflict-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: var(--space-2xl);
+        margin-top: var(--space-2xl);
+      }
+
+      .conflict-card {
+        background: var(--bg);
+        border-radius: var(--radius-lg);
+        padding: var(--space-xl);
+        border: 1px solid var(--border);
+        transition: all var(--duration-normal) var(--ease-out);
+      }
+
+      .conflict-card:hover {
+        transform: translateY(-4px);
+        box-shadow: var(--shadow-xl);
+        border-color: var(--accent);
+      }
+
+      .conflict-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: var(--radius-md);
+        background: var(--accent-light);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: var(--space-md);
+        font-size: 1.5rem;
+      }
+
+      .conflict-card h3 {
+        font-size: var(--text-xl);
+        font-weight: 700;
+        margin-bottom: var(--space-sm);
+      }
+
+      .conflict-card p {
+        color: var(--muted);
+        font-size: var(--text-base);
+      }
+
+      /* Who It's For Section */
+      .target-users {
+        background: linear-gradient(135deg, var(--bg) 0%, var(--surface) 100%);
+      }
+
+      .user-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: var(--space-xl);
+        margin-top: var(--space-2xl);
+      }
+
+      .user-card {
+        background: var(--surface);
+        border-radius: var(--radius-lg);
+        padding: var(--space-xl);
+        border: 1px solid var(--border);
+        transition: all var(--duration-normal) var(--ease-out);
+        position: relative;
+        overflow: hidden;
+      }
+
+      .user-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 4px;
+        background: linear-gradient(90deg, var(--accent), var(--accent-hover));
+        transform: translateX(-100%);
+        transition: transform var(--duration-slow) var(--ease-out);
+      }
+
+      .user-card:hover {
+        transform: translateY(-4px);
+        box-shadow: var(--shadow-xl);
+      }
+
+      .user-card:hover::before {
+        transform: translateX(0);
+      }
+
+      .user-avatar {
+        width: 64px;
+        height: 64px;
+        border-radius: 50%;
+        background: var(--accent-light);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: var(--space-md);
+        font-size: 1.75rem;
+      }
+
+      .user-card h3 {
+        font-size: var(--text-xl);
+        font-weight: 700;
+        margin-bottom: var(--space-sm);
+      }
+
+      .user-card p {
+        color: var(--muted);
+        font-size: var(--text-base);
+      }
+
+      /* Integrations Section */
+      .integrations {
+        background: var(--surface);
+        border-top: 1px solid var(--border);
+      }
+
+      .integration-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: var(--space-xl);
+        margin-top: var(--space-2xl);
+      }
+
+      .integration-card {
+        background: var(--bg);
+        border-radius: var(--radius-lg);
+        padding: var(--space-xl);
+        text-align: center;
+        border: 1px solid var(--border);
+        transition: all var(--duration-normal) var(--ease-out);
+        cursor: pointer;
+      }
+
+      .integration-card:hover {
+        transform: translateY(-4px);
+        box-shadow: var(--shadow-xl);
+        border-color: var(--accent);
+      }
+
+      .integration-icon {
+        width: 64px;
+        height: 64px;
+        border-radius: var(--radius-md);
+        background: var(--surface);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto var(--space-md);
+        font-size: 2rem;
+        border: 1px solid var(--border);
+      }
+
+      .integration-card h3 {
+        font-size: var(--text-lg);
+        font-weight: 600;
+        margin-bottom: var(--space-sm);
+      }
+
+      .integration-card p {
+        color: var(--muted);
+        font-size: var(--text-sm);
+      }
+
+      /* CTA Section */
+      .cta-section {
+        background: linear-gradient(135deg, var(--accent) 0%, var(--accent-hover) 100%);
+        color: white;
+        text-align: center;
+        border-radius: var(--radius-lg);
+        padding: var(--space-4xl) var(--space-2xl);
+        margin: var(--space-4xl) auto;
+        max-width: 800px;
+        box-shadow: var(--shadow-xl);
+      }
+
+      .cta-section h2 {
+        font-size: var(--text-3xl);
+        font-weight: 800;
+        letter-spacing: -0.03em;
+        margin-bottom: var(--space-lg);
+      }
+
+      .cta-section p {
+        font-size: var(--text-lg);
+        margin-bottom: var(--space-2xl);
+        opacity: 0.9;
+      }
+
+      .btn-secondary {
+        display: inline-block;
+        padding: var(--space-md) var(--space-xl);
+        border-radius: var(--radius-full);
+        background: white;
+        color: var(--accent);
+        font-weight: 600;
+        font-size: var(--text-base);
+        text-decoration: none;
+        border: none;
+        cursor: pointer;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        transition: all var(--duration-normal) var(--ease-spring);
+      }
+
+      .btn-secondary:hover {
+        transform: translateY(-2px) scale(1.02);
+        box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+      }
+
+      /* Footer */
+      footer {
+        background: var(--surface);
+        border-top: 1px solid var(--border);
+        padding: var(--space-2xl) var(--space-md);
+        text-align: center;
+        color: var(--muted);
+        font-size: var(--text-sm);
+      }
+
+      /* Reveal Animation */
+      .reveal {
+        opacity: 0;
+        transform: translateY(20px);
+        transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+      }
+
+      .reveal.is-visible {
+        opacity: 1;
+        transform: translateY(0);
+      }
+
+      /* Responsive */
+      @media (max-width: 768px) {
+        .menu-toggle {
+          display: block;
+        }
+
+        .nav-links {
+          position: fixed;
+          top: 0;
+          right: -100%;
+          width: 70%;
+          height: 100vh;
+          background: var(--surface);
+          flex-direction: column;
+          padding: var(--space-2xl);
+          transition: right var(--duration-normal) var(--ease-out);
+          box-shadow: -4px 0 10px rgba(0,0,0,0.1);
+        }
+
+        .nav-links.open {
+          right: 0;
+        }
+
+        .hero {
+          padding: var(--space-2xl) var(--space-md);
+        }
+
+        .hero h1 {
+          font-size: var(--text-3xl);
+        }
+
+        .hero p {
+          font-size: var(--text-lg);
+        }
+
+        section {
+          padding: var(--space-2xl) var(--space-md);
+        }
+
+        .cta-section {
+          padding: var(--space-2xl) var(--space-md);
+        }
+      }
     </style>
   </head>
   <body>
     <header data-testid="site-header">
-      <nav data-testid="primary-nav">
-        <span class="brand">enable users to</span>
-        <div class="nav-links">
-        <a href="./index.html" class="nav-link active">Home</a>
+      <nav data-testid="primary-nav" class="navbar">
+        <div class="nav-container">
+          <a href="./index.html" class="brand">enable users to</a>
+          <div class="nav-links">
+            <a href="#hero-section" class="nav-link active">Home</a>
+            <a href="#conflict-detection" class="nav-link">Features</a>
+            <a href="#target-users" class="nav-link">Who It's For</a>
+            <a href="#integrations" class="nav-link">Integrations</a>
+          </div>
+          <button class="menu-toggle" data-testid="mobile-nav-toggle" aria-label="Menu" aria-expanded="false">
+            <span>☰</span>
+          </button>
         </div>
-        <button class="menu-toggle" data-testid="mobile-nav-toggle" aria-label="Menu" aria-expanded="false">&#9776;</button>
       </nav>
     </header>
 
     <main data-testid="main-content" data-page="home">
-      <h1>enable users to</h1>
-      <p>enable users to optimize and streamline their daily routines and schedules</p>
-      <!-- Agent will implement the full Home page content -->
+      <section id="hero-section" class="hero reveal">
+        <div class="hero-content">
+          <h1>Never Schedule Conflicts Again</h1>
+          <p>As a self-employed professional, your time is your most valuable asset. Our smart scheduling system prevents double-bookings and optimizes your daily routine.</p>
+          <a href="#conflict-detection" class="btn-primary">Get Started Free</a>
+        </div>
+      </section>
+
+      <section id="conflict-detection" class="conflict-detection reveal">
+        <div class="container">
+          <div class="section-label">How It Works</div>
+          <h2 class="section-title">Automatic Conflict Detection & Alerts</h2>
+          <div class="conflict-grid">
+            <div class="conflict-card">
+              <div class="conflict-icon">⏰</div>
+              <h3>Smart Calendar Sync</h3>
+              <p>Connect all your calendars in one place. We automatically detect overlapping appointments across Google, Outlook, and Apple Calendar.</p>
+            </div>
+            <div class="conflict-card">
+              <div class="conflict-icon">🔔</div>
+              <h3>Real-time Alerts</h3>
+              <p>Get notified before conflicts happen with customizable alerts. Choose email, SMS, or in-app notifications based on your preference.</p>
+            </div>
+            <div class="conflict-card">
+              <div class="conflict-icon">🤖</div>
+              <h3>AI-Powered Suggestions</h3>
+              <p>When conflicts are detected, our AI suggests alternative times based on your availability, priorities, and meeting importance.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="target-users" class="target-users reveal">
+        <div class="container">
+          <div class="section-label">Perfect For</div>
+          <h2 class="section-title">Who It Is For</h2>
+          <div class="user-grid">
+            <div class="user-card">
+              <div class="user-avatar">👨‍💼</div>
+              <h3>Freelancers</h3>
+              <p>Juggling multiple clients with varying schedules? Our system ensures you never miss a deadline or double-book yourself.</p>
+            </div>
+            <div class="user-card">
+              <div class="user-avatar">👩‍⚕️</div>
+              <h3>Healthcare Professionals</h3>
+              <p>Manage patient appointments, consultations, and personal commitments without scheduling conflicts or overlapping sessions.</p>
+            </div>
+            <div class="user-card">
+              <div class="user-avatar">👨‍🏫</div>
+              <h3>Coaches & Consultants</h3>
+              <p>Streamline your client sessions with automated conflict detection and smart scheduling that adapts to your availability.</p>
+            </div>
+            <div class="user-card">
+              <div class="user-avatar">👩‍🎨</div>
+              <h3>Creative Professionals</h3>
+              <p>Balancing client work, personal projects, and meetings has never been easier. Focus on your creativity, not scheduling.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="integrations" class="integrations reveal">
+        <div class="container">
+          <div class="section-label">Seamless Connections</div>
+          <h2 class="section-title">Calendar Integrations</h2>
+          <div class="integration-grid">
+            <div class="integration-card">
+              <div class="integration-icon">📅</div>
+              <h3>Google Calendar</h3>
+              <p>Two-way sync with all your events</p>
+            </div>
+            <div class="integration-card">
+              <div class="integration-icon">🍎</div>
+              <h3>Apple Calendar</h3>
+              <p>iCloud integration for Apple users</p>
+            </div>
+            <div class="integration-card">
+              <div class="integration-icon">📧</div>
+              <h3>Outlook</h3>
+              <p>Connect your Microsoft calendar</p>
+            </div>
+            <div class="integration-card">
+              <div class="integration-icon">📱</div>
+              <h3>iOS & Android</h3>
+              <p>Mobile apps for on-the-go scheduling</p>
+            </div>
+            <div class="integration-card">
+              <div class="integration-icon">🔔</div>
+              <h3>Slack</h3>
+              <p>Get alerts directly in your workspace</p>
+            </div>
+            <div class="integration-card">
+              <div class="integration-icon">📊</div>
+              <h3>Zoom</h3>
+              <p>Automatically join video meetings</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="cta-section reveal">
+        <h2>Ready to Take Control of Your Schedule?</h2>
+        <p>Join thousands of self-employed professionals who have eliminated scheduling conflicts forever.</p>
+        <a href="#hero-section" class="btn-secondary">Start Your Free Trial</a>
+      </section>
     </main>
 
     <footer data-testid="footer-section">
-      <p>&copy; enable users to</p>
+      <div class="container">
+        <p>&copy; 2023 enable users to. All rights reserved.</p>
+      </div>
     </footer>
 
     <script src="./script.js"></script>
     <script>
-      // Page-specific scripts — the integration agent will extract these into script.js later
+      // Mobile Navigation Toggle
       document.addEventListener('DOMContentLoaded', () => {
         const toggle = document.querySelector('[data-testid="mobile-nav-toggle"]');
         const navLinks = document.querySelector('.nav-links');
+        
         if (toggle && navLinks) {
           toggle.addEventListener('click', () => {
             const expanded = toggle.getAttribute('aria-expanded') === 'true';
@@ -52,6 +667,67 @@
             navLinks.classList.toggle('open');
           });
         }
+        
+        // Smooth Scroll for Navigation Links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+          anchor.addEventListener('click', function (e) {
+            e.preventDefault();
+            const target = document.querySelector(this.getAttribute('href'));
+            if (target) {
+              target.scrollIntoView({
+                behavior: 'smooth',
+                block: 'start'
+              });
+              
+              // Close mobile menu if open
+              if (navLinks.classList.contains('open')) {
+                navLinks.classList.remove('open');
+                toggle.setAttribute('aria-expanded', 'false');
+              }
+            }
+          });
+        });
+        
+        // Active Navigation Link on Scroll
+        const sections = document.querySelectorAll('section');
+        const navItems = document.querySelectorAll('.nav-link');
+        
+        window.addEventListener('scroll', () => {
+          let current = '';
+          
+          sections.forEach(section => {
+            const sectionTop = section.offsetTop;
+            const sectionHeight = section.clientHeight;
+            if (scrollY >= (sectionTop - 200)) {
+              current = section.getAttribute('id');
+            }
+          });
+          
+          navItems.forEach(item => {
+            item.classList.remove('active');
+            if (item.getAttribute('href').slice(1) === current) {
+              item.classList.add('active');
+            }
+          });
+        });
+        
+        // Intersection Observer for Scroll Animations
+        const revealElements = document.querySelectorAll('.reveal');
+        
+        const revealObserver = new IntersectionObserver((entries) => {
+          entries.forEach(entry => {
+            if (entry.isIntersecting) {
+              entry.target.classList.add('is-visible');
+            }
+          });
+        }, {
+          threshold: 0.1,
+          rootMargin: '0px 0px -50px 0px'
+        });
+        
+        revealElements.forEach(element => {
+          revealObserver.observe(element);
+        });
       });
     </script>
   </body>
