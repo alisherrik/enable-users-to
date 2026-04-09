@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>enable users to</title>
+    <meta name="description" content="enable users to optimize and streamline their daily routines and schedules" />
+    <link rel="stylesheet" href="./styles.css" />
+    <style>
+      /* Page-specific styles — the integration agent will extract these into styles.css later */
+      nav { display: flex; align-items: center; justify-content: space-between; padding: 16px 32px; background: #fffaf4; }
+      .brand { font-weight: 700; font-size: 1.1rem; }
+      .nav-links { display: flex; gap: 16px; }
+      .nav-link { text-decoration: none; color: #1c1917; font-size: 0.9rem; }
+      .nav-link.active { color: #bc5e2c; font-weight: 600; }
+      .menu-toggle { display: none; }
+      main { padding: 32px; }
+      @media (max-width: 768px) { .menu-toggle { display: block; } .nav-links { display: none; } }
+    </style>
+  </head>
+  <body>
+    <header data-testid="site-header">
+      <nav data-testid="primary-nav">
+        <span class="brand">enable users to</span>
+        <div class="nav-links">
+        <a href="./index.html" class="nav-link active">Home</a>
+        </div>
+        <button class="menu-toggle" data-testid="mobile-nav-toggle" aria-label="Menu" aria-expanded="false">&#9776;</button>
+      </nav>
+    </header>
+
+    <main data-testid="main-content" data-page="home">
+      <h1>enable users to</h1>
+      <p>enable users to optimize and streamline their daily routines and schedules</p>
+      <!-- Agent will implement the full Home page content -->
+    </main>
+
+    <footer data-testid="footer-section">
+      <p>&copy; enable users to</p>
+    </footer>
+
+    <script src="./script.js"></script>
+    <script>
+      // Page-specific scripts — the integration agent will extract these into script.js later
+      document.addEventListener('DOMContentLoaded', () => {
+        const toggle = document.querySelector('[data-testid="mobile-nav-toggle"]');
+        const navLinks = document.querySelector('.nav-links');
+        if (toggle && navLinks) {
+          toggle.addEventListener('click', () => {
+            const expanded = toggle.getAttribute('aria-expanded') === 'true';
+            toggle.setAttribute('aria-expanded', String(!expanded));
+            navLinks.classList.toggle('open');
+          });
+        }
+      });
+    </script>
+  </body>
+</html>
