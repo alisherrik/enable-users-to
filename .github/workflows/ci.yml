@@ -1,0 +1,21 @@
+name: Interactive UI CI
+
+on:
+  pull_request:
+  push:
+    branches: ["main"]
+
+permissions:
+  contents: read
+
+jobs:
+  verify-interactive-ui:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check entrypoints
+        run: |
+          test -f index.html
+      - name: Check main content
+        run: |
+          grep -q 'data-testid="main-content"' index.html
